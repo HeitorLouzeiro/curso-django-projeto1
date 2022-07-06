@@ -1,6 +1,5 @@
 from django.test import TestCase
 from django.urls import reverse
-from recipes import views
 
 # Create your tests here.
 
