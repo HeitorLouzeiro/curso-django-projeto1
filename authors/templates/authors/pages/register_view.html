@@ -4,7 +4,7 @@
 
 {% block content %}
   <div class="main-content center container">
-    <h2>Register</h2>
+    <h2>Register {{ request.session.number }}</h2>
   </div>
 
   <div class="main-content container">
@@ -25,6 +25,16 @@
           </div>
         {% endfor %}
       </div>
+
+      {% if form.errors %}
+      <div class="form-content form-content-grid">
+        <div class="form-group">
+          <div class="message message-error">
+            There are errors in the form, please fix them and send again.
+          </div>
+        </div>
+      </div>
+      {% endif %}
 
       <div class="form-content form-content-grid">
         <div class="form-group">
