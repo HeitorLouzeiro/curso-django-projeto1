@@ -28,5 +28,5 @@ def make_chrome_browser(*options):
 if __name__ == '__main__':
     browser = make_chrome_browser('--headless')
     browser.get('http://www.udemy.com/')
-    sleep(5)
+    sleep(20)
     browser.quit()

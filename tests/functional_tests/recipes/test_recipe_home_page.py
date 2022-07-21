@@ -1,65 +1,64 @@
-from django.test import TestCase
+from unittest.mock import patch
 
-from recipes.models import Category, Recipe, User
+import pytest
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+
+from .base import RecipeBaseFunctionalTest
 
 
-class RecipeMixin:
-    def make_category(self, name='Category'):
-        return Category.objects.create(name=name)
+@pytest.mark.functional_test
+class RecipeHomePageFunctionalTest(RecipeBaseFunctionalTest):
+    def test_recipe_home_page_without_recipes_not_found_message(self):
+        self.browser.get(self.live_server_url)
+        body = self.browser.find_element(By.TAG_NAME, 'body')
+        self.assertIn('No recipes found here 🥲', body.text)
 
-    def make_author(
-        self,
-        first_name='user',
-        last_name='name',
-        username='username',
-        password='123456',
-        email='username@email.com',
-    ):
-        return User.objects.create_user(
-            first_name=first_name,
-            last_name=last_name,
-            username=username,
-            password=password,
-            email=email,
+    @patch('recipes.views.PER_PAGE', new=2)
+    def test_recipe_search_input_can_find_correct_recipes(self):
+        recipes = self.make_recipe_in_batch()
+
+        title_needed = 'This is what I need'
+
+        recipes[0].title = title_needed
+        recipes[0].save()
+
+        # Usuário abre a página
+        self.browser.get(self.live_server_url)
+
+        # Vê um campo de busca com o texto "Search for a recipe"
+        search_input = self.browser.find_element(
+            By.XPATH,
+            '//input[@placeholder="Search for a recipe"]'
         )
 
-    def make_recipe(
-        self,
-        category_data=None,
-        author_data=None,
-        title='Recipe Title',
-        description='Recipe Description',
-        slug='recipe-slug',
-        preparation_time=10,
-        preparation_time_unit='Minutos',
-        servings=5,
-        servings_unit='Porções',
-        preparation_steps='Recipe Preparation Steps',
-        preparation_steps_is_html=False,
-        is_published=True,
-    ):
-        if category_data is None:
-            category_data = {}
+        # Clica neste input e digita o termo de busca
+        # para encontrar a receita o título desejado
+        search_input.send_keys(title_needed)
+        search_input.send_keys(Keys.ENTER)
 
-        if author_data is None:
-            author_data = {}
-
-        return Recipe.objects.create(
-            category=self.make_category(**category_data),
-            author=self.make_author(**author_data),
-            title=title,
-            description=description,
-            slug=slug,
-            preparation_time=preparation_time,
-            preparation_time_unit=preparation_time_unit,
-            servings=servings,
-            servings_unit=servings_unit,
-            preparation_steps=preparation_steps,
-            preparation_steps_is_html=preparation_steps_is_html,
-            is_published=is_published,
+        # O usuário vê o que estava procurando na página
+        self.assertIn(
+            title_needed,
+            self.browser.find_element(By.CLASS_NAME, 'main-content-list').text,
         )
 
+    @patch('recipes.views.PER_PAGE', new=2)
+    def test_recipe_home_page_pagination(self):
+        self.make_recipe_in_batch()
 
-class RecipeTestBase(TestCase, RecipeMixin):
-    def setUp(self) -> None:
-        return super().setUp()
+        # Usuário abre a página
+        self.browser.get(self.live_server_url)
+
+        # Vê que tem uma paginação e clica na página 2
+        page2 = self.browser.find_element(
+            By.XPATH,
+            '//a[@aria-label="Go to page 2"]'
+        )
+        page2.click()
+
+        # Vê que tem mais 2 receitas na página 2
+        self.assertEqual(
+            len(self.browser.find_elements(By.CLASS_NAME, 'recipe')),
+            2
+        )
