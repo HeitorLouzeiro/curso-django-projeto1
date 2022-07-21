@@ -13,5 +13,5 @@ class AuthorsBaseTest(StaticLiveServerTestCase):
         self.browser.quit()
         return super().tearDown()
 
-    def sleep(self, qtd=30):
+    def sleep(self, qtd=10):
         time.sleep(qtd)
