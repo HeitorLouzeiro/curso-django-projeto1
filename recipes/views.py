@@ -1,6 +1,9 @@
 import os
 
+# from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
+from django.db.models.aggregates import Count
+from django.db.models.functions import Concat
 from django.forms.models import model_to_dict
 from django.http import JsonResponse
 from django.http.response import Http404
@@ -11,6 +14,71 @@ from utils.pagination import make_pagination
 from recipes.models import Recipe
 
 PER_PAGE = int(os.environ.get('PER_PAGE', 6))
+
+
+def theory(request, *args, **kwargs):
+    # recipes = Recipe.objects.all()
+    # recipes = recipes.filter(title__icontains='Teste')
+    # recipes = recipes.first()
+    # recipes = recipes.last()
+    # recipes = Recipe.objects.get(pk=1)
+
+    # try:
+    #     recipes = Recipe.objects.get(pk=10000)
+    # except ObjectDoesNotExist:
+    #     recipes = None
+
+    # print(recipes[2:3])
+    # list(recipes)
+
+    # recipes = Recipe.objects.filter(
+    #     title__icontains='ca'
+    # )[:10]
+    #
+    # consulta de outro model
+    # recipes = Recipe.objects.filter(
+    #     id=F('author__id'),
+    # ).order_by('-id',)[:10]
+
+    # Especificando as query no django
+    # recipes = Recipe.objects.values('id', 'title', 'author__username')[:10]
+
+    # usando count
+    # recipes = Recipe.objects.values('id', 'title')
+    # number_od_recipes = recipes.aggregate(Count('id'))
+
+    # context = {
+    #     'recipes': recipes,
+    #     'number_od_recipes': number_od_recipes['id__count'],
+    # }
+    # return render(request, 'recipes/pages/theory.html', context=context)
+
+    # usando annotate
+    # recipes = Recipe.objects.all().annotate(
+    #     author_full_name=Concat(
+    #         F('author__first_name'), Value(' '),
+    #         F('author__last_name'), Value(' ('),
+    #         F('author__username'), Value(')'),
+    #     )
+    # )
+    # number_od_recipes = recipes.aggregate(Count('id'))
+
+    # context = {
+    #     'recipes': recipes,
+    #     'number_od_recipes': number_od_recipes['id__count'],
+    # }
+    # return render(request, 'recipes/pages/theory.html', context=context)
+
+    # usando manager para model
+    recipes = Recipe.objects.get_published()
+
+    number_od_recipes = recipes.aggregate(Count('id'))
+
+    context = {
+        'recipes': recipes,
+        'number_od_recipes': number_od_recipes['id__count'],
+    }
+    return render(request, 'recipes/pages/theory.html', context=context)
 
 # CBV - Classe Base View
 
