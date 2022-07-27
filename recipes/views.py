@@ -3,7 +3,7 @@ import os
 # from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.db.models.aggregates import Count
-from django.db.models.functions import Concat
+# from django.db.models.functions import Concat
 from django.forms.models import model_to_dict
 from django.http import JsonResponse
 from django.http.response import Http404
