@@ -1,7 +1,7 @@
 <div class="recipe recipe-list-item">
     {% if recipe.cover %}
         <div class="recipe-cover">
-            <a href="{% url 'recipes:recipe' recipe.id %}">
+            <a href="{{ recipe.get_absolute_url }}">
                 <img src="{{ recipe.cover.url }}" alt="Temporário">
             </a>
         </div>
@@ -18,12 +18,22 @@
 
         {% if recipe.author is not None %}
             <span class="recipe-author-item">
+                
+                {% if recipe.author.profile %}
+                    <a href="{% url 'authors:profile' recipe.author.profile.id %}">
+                {% endif %}
+
                 <i class="fas fa-user"></i>
                 {% if recipe.author.first_name %}
                     {{ recipe.author.first_name }} {{ recipe.author.last_name }}
                 {% else %}
                     {{ recipe.author.username }}
                 {% endif %}
+
+                {% if recipe.author.profile %}
+                    </a>
+                {% endif %}
+
             </span>
         {% endif %}
 
@@ -63,7 +73,7 @@
 
     {% if is_detail_page is not True %}
         <footer class="recipe-footer">
-            <a class="recipe-read-more button button-dark button-full-width" href="{{ recipe.get_absolute_url }}">
+            <a class="recipe-read-more button button-dark button-full-width" href="{% url 'recipes:recipe' recipe.id %}">
                 <i class="fas fa-eye"></i>
                 <span>ver mais...</span>
             </a>
@@ -77,16 +87,16 @@
             {% else %}
                 {{ recipe.preparation_steps|linebreaksbr }}
             {% endif %}
-            {% if recipe.tags.all %}
-            <p>
-                Tags:
-                {% for tag in recipe.tags.all %}
-                <a href="{% url 'recipes:tag' tag.slug%}">
-                    {{tag.name}}
-                </a>,
 
-                {% endfor %}
-            </p>
+            {% if recipe.tags.all %}
+                <p>
+                    Tags:
+                    {% for tag in recipe.tags.all %}
+                        <a href="{% url 'recipes:tag' tag.slug %}">
+                            {{ tag.name }}
+                        </a>, 
+                    {% endfor %}
+                </p>
             {% endif %}
         </div>
     {% endif %}
