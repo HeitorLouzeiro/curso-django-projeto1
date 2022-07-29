@@ -18,19 +18,21 @@ class RecipeSerializer(serializers.Serializer):
         method_name='any_method_name'
     )
     category = serializers.StringRelatedField()
-
     author = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all()
     )
-    author_name = serializers.StringRelatedField(source='author')
-
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True
     )
-
     tag_objects = TagSerializer(
         many=True, source='tags'
+    )
+    tag_links = serializers.HyperlinkedRelatedField(
+        many=True,
+        source='tags',
+        queryset=Tag.objects.all(),
+        view_name='recipes:recipes_api_v2_tag'
     )
 
     def any_method_name(self, recipe):
