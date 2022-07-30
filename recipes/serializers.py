@@ -1,44 +1,8 @@
-# from django.contrib.auth.models import User
+from authors.validators import AuthorRecipeValidator
 from rest_framework import serializers
 from tag.models import Tag
 
 from .models import Recipe
-
-# class TagSerializer(serializers.Serializer):
-#     id = serializers.IntegerField()
-#     name = serializers.CharField(max_length=255)
-#     slug = serializers.SlugField()
-
-# class RecipeSerializer(serializers.Serializer):
-#     id = serializers.IntegerField()
-#     title = serializers.CharField(max_length=65)
-#     description = serializers.CharField(max_length=165)
-#     public = serializers.BooleanField(source='is_published')
-#     preparation = serializers.SerializerMethodField(
-#         method_name='any_method_name'
-#     )
-#     category = serializers.StringRelatedField()
-#     author = serializers.PrimaryKeyRelatedField(
-#         queryset=User.objects.all()
-#     )
-#     tags = serializers.PrimaryKeyRelatedField(
-#         queryset=Tag.objects.all(),
-#         many=True
-#     )
-#     tag_objects = TagSerializer(
-#         many=True, source='tags'
-#     )
-#     tag_links = serializers.HyperlinkedRelatedField(
-#         many=True,
-#         source='tags',
-#         queryset=Tag.objects.all(),
-#         view_name='recipes:recipes_api_v2_tag'
-#     )
-
-#     def any_method_name(self, recipe):
-#         return f'{recipe.preparation_time} {recipe.preparation_time_unit}'
-
-# Usnado ModelSerializer
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -54,6 +18,9 @@ class RecipeSerializer(serializers.ModelSerializer):
             'id', 'title', 'description', 'author',
             'category', 'tags', 'public', 'preparation',
             'tag_objects', 'tag_links',
+            'preparation_time', 'preparation_time_unit', 'servings',
+            'servings_unit',
+            'preparation_steps', 'cover'
         ]
 
     public = serializers.BooleanField(
@@ -80,3 +47,26 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def any_method_name(self, recipe):
         return f'{recipe.preparation_time} {recipe.preparation_time_unit}'
+
+    def validate(self, attrs):
+        if self.instance is not None and attrs.get('servings') is None:
+            attrs['servings'] = self.instance.servings
+
+        if self.instance is not None and attrs.get('preparation_time') is None:
+            attrs['preparation_time'] = self.instance.preparation_time
+
+        super_validate = super().validate(attrs)
+        AuthorRecipeValidator(
+            data=attrs,
+            ErrorClass=serializers.ValidationError,
+        )
+        return super_validate
+
+    def save(self, **kwargs):
+        return super().save(**kwargs)
+
+    def create(self, validated_data):
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        return super().update(instance, validated_data)
