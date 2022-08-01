@@ -44,14 +44,26 @@ urlpatterns = [
         views.theory,
         name="theory"
     ),
+    # FBV - Django Rest Framework
+    # path(
+    #     'recipes/api/v2/',
+    #     views.recipe_api_list,
+    #     name='recipes_api_v2',
+    # ),
+    # path(
+    #     'recipes/api/v2/<int:pk>/',
+    #     views.recipe_api_detail,
+    #     name='recipes_api_v2_detail',
+    # ),
+    # CBV - Django REST Framework
     path(
         'recipes/api/v2/',
-        views.recipe_api_list,
+        views.RecipeAPIv2List.as_view(),
         name='recipes_api_v2',
     ),
     path(
         'recipes/api/v2/<int:pk>/',
-        views.recipe_api_detail,
+        views.RecipeAPIv2Detail.as_view(),
         name='recipes_api_v2_detail',
     ),
     path(
