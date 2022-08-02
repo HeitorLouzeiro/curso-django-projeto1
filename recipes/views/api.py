@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
 # from rest_framework.permissions import IsAuthenticated
@@ -6,7 +7,6 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from tag.models import Tag
-from rest_framework import status
 
 from ..models import Recipe
 from ..permissions import IsOwner
@@ -24,6 +24,7 @@ class RecipeAPIv2ViewSet(ModelViewSet):
     pagination_class = RecipeAPIv2Pagination
     # permission_classes = [IsAuthenticated, ]
     permission_classes = [IsAuthenticatedOrReadOnly, ]
+    http_method_names = ['get', 'options', 'head', 'patch', 'post', 'delete']
 
     def get_serializer_class(self):
         return super().get_serializer_class()
